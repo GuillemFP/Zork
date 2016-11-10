@@ -5,13 +5,16 @@
 #include <ios>
 #include "globals.h"
 #include "constants.h"
+#include "world.h"
 
 
 int main()
 {
 	std::vector<std::string> args;
-	std::string player_input,sub;
+	std::string player_input,sub,output;
 	std::stringstream ss;
+
+	World spaceship;
 
 	while (true)
 	{
@@ -25,6 +28,10 @@ int main()
 		{
 			break;
 		}
+
+		output = spaceship.CommandHandler(args);
+		if (output != "")
+			std::cout << output << "\n";
 
 		args.clear();
 		ss.clear();
