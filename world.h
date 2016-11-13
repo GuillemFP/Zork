@@ -3,16 +3,22 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include "constants.h"
 #include "globals.h"
+
+#include "entity.h"
+#include "player.h"
 
 class World
 {
 public:
 	World();
 	~World();
+	bool World::CommandHandler(std::vector<std::string>& args, std::string& output);
 
-	std::string World::CommandHandler(const std::vector<std::string>& args);
+	Player* player;
+	std::list<Entity*> entities;
 };
 
 #endif // !WORLD_H

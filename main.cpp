@@ -10,6 +10,7 @@
 
 int main()
 {
+	ReportMemoryLeaks();
 	std::vector<std::string> args;
 	std::string player_input,sub,output;
 	std::stringstream ss;
@@ -29,8 +30,7 @@ int main()
 			break;
 		}
 
-		output = spaceship.CommandHandler(args);
-		if (output != "")
+		if (spaceship.CommandHandler(args,output) == false)
 			std::cout << output << "\n";
 
 		args.clear();
