@@ -4,60 +4,74 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 namespace MENU
 {
-	const std::vector<std::string> QUIT = {"quit","exit"};
+	const vector<string> QUIT = {"quit","exit"};
 }
 
 namespace COMMAND
 {
-	const std::vector<std::string> MOVE = { "move","go" };
-	const std::vector<std::string> NORTH = { "north","n" };
-	const std::vector<std::string> EAST = { "east","e" };
-	const std::vector<std::string> SOUTH = { "south","s" };
-	const std::vector<std::string> WEAST = { "west","w" };
-	const std::vector<std::string> UP = { "up","u" };
-	const std::vector<std::string> DOWN = { "down","d" };
-	const std::vector<std::string> LOOK = { "look" };
-	const std::vector<std::string> OPEN = { "open" };
-	const std::vector<std::string> INFECT = { "infect","parasitize" };
-	const std::vector<std::string> TAKE = { "take","pick" };
-	const std::vector<std::string> DROP = { "drop","release" };
-	const std::vector<std::string> EVOLVE = { "evolve" };
-	const std::vector<std::string> FEED = { "feed" };
-	const std::vector<std::string> INVENTORY = { "inventory","items" };
-	const std::vector<std::string> STATE = { "state","check" };
+	const vector<string> MOVE = { "move","go" };
+	const vector<string> DIRECTIONS = { "north", "east", "south", "west" };
+	const vector<string> LOOK = { "look" };
+	const vector<string> OPEN = { "open" };
+	const vector<string> INFECT = { "infect","parasitize" };
+	const vector<string> TAKE = { "take","pick" };
+	const vector<string> DROP = { "drop","release" };
+	const vector<string> EVOLVE = { "evolve" };
+	const vector<string> FEED = { "feed" };
+	const vector<string> INVENTORY = { "inventory","items" };
+	const vector<string> STATE = { "state","check" };
 	
 }
 
 namespace NAMES
 {
-	const std::vector<std::string> HOST = { "host","you" };
-	const std::vector<std::string> YOU = { "you" };
+	const vector<string> HOST = { "host","you" };
+	const vector<string> YOU = { "you","player","myself","alien" };
 }
 
 namespace CONNECTORS
 {
-	const std::vector<std::string> FROM = { "from" };
-	const std::vector<std::string> INTO = { "into","to","inside" };
-	const std::vector<std::string> AT = { "at" };
+	const vector<string> FROM = { "from" };
+	const vector<string> INTO = { "into","to","inside" };
+	const vector<string> AT = { "at" };
+	const vector<string> INSIDE = { "inside","in","on" };
+	const vector<string> WITH = { "with","using" };
 }
 
 namespace OUTPUTS
 {
-	const std::string _ERROR = "-> ";
-	const std::string _ACCEPTED = "->> ";
-	const std::string MISTAKE = "Sorry, I cannot understand you.";
-	const std::string WHERE = " where?";
-	const std::string WHAT = " what?";
+	const string _ERROR = "-> ";
+	const string _ACCEPTED = "->> ";
+	const string _WAITING = "> ";
+	const string MISTAKE = "Sorry, I cannot understand you.";
+	const string WHERE = " where?";
+	const string WHAT = " what?";
+	const string CANNOT = "I cannot ";
+	const string INVENTORY_EMPTY = "The inventory is empty.";
+}
+
+namespace LIST_INTROS
+{
+	const string INVENTORY_PLAYER = "You hold: ";
+	const string INVENTORY_HOST = "Your host hold: ";
+	const string ROOM_EXITS = "There is a way out of this room: ";
+	const string ROOM_ITEMS = "There is something interesting in this room: ";
+	const string ROOM_CREATURES = "There is another sentient creature in this room: ";
+	const string ITEM_ITEMS = "There is something inside: ";
+	const string CREATURE_ALIVE_ITEMS = "It holds, that you can see: ";
+	const string CREATURE_DEATH_ITEMS = "It has: ";
 }
 
 namespace PLAYER_CONSTANTS
 {
-	const std::string LARVA_DESC = "You are a larva of an alien species. Your length is 30 centimeters, your skin is grayish and soft. Your only instict is to survive by parasitizing other species.";
-	const std::string ARACHNID_DESC = "You evolved into your species arachnid form. Your height is 60 centimeters, but your bones are strong, you are fast and have a set of mortal claws.";
-	const std::string BIPED_DESC = "You evolved into your species biped form. You no longer have the ability to parasitize other species, but have reached a state of evolution beyond humanity.";
-
+	const string LARVA_DESC = "You are a larva of an alien species. Your length is 30 centimeters, your skin is grayish and soft. Your only instict is to survive by parasitizing other species.";
+	const string ARACHNID_DESC = "You evolved into your species arachnid form. Your height is 60 centimeters, but your bones are strong, you are fast and have a set of mortal claws.";
+	const string BIPED_DESC = "You evolved into your species biped form. You no longer have the ability to parasitize other species, but have reached a state of evolution beyond humanity.";
+	const string LOOK_UNKNOWN = "You are unable to understand what are you looking at.";
 }
 
 #endif // !CONSTANTS_H

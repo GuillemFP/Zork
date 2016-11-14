@@ -15,7 +15,13 @@ class World
 public:
 	World();
 	~World();
-	bool World::CommandHandler(std::vector<std::string>& args, std::string& output);
+	bool CommandHandler(std::vector<std::string>& args, std::string& output);
+	void LookHandler();
+	bool LookAtHandler(const std::string& thing);
+	bool LookAtInsideHandler(const std::string& item_name, const std::string& container_name);
+	bool MoveHandler(const std::string& direction);
+	bool OpenHandler(const std::string& direction);
+	bool InventoryHandler();
 
 	Player* player;
 	std::list<Entity*> entities;

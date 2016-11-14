@@ -18,3 +18,17 @@ bool IsEqual(const std::string& first, const std::vector<std::string>& second)
 
 	return equal;
 }
+
+bool IsEqual(const std::vector<std::string>& first, const std::vector<std::string>& second)
+{
+	bool equal = false;
+	std::vector<std::string>::const_iterator it = first.begin();
+
+	while (!equal && it != first.end())
+	{
+		equal = IsEqual(*it, second);
+		it++;
+	}
+
+	return equal;
+}

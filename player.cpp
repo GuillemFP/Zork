@@ -3,7 +3,8 @@
 #include "constants.h"
 #include <iostream>
 
-Player::Player(const std::string& name, const std::string& description, Entity* parent, int hp) : Creature(name, description, parent, hp)
+Player::Player(const std::string& name, const std::string& description, Entity* parent, int hp, bool smart) : 
+	Creature(name, description, parent, hp, smart)
 {
 	type = PLAYER;
 	evolution_status = LARVA;
@@ -13,52 +14,70 @@ Player::~Player()
 {
 }
 
-void Player::Look() const
+void Player::Look(Entity* origin) const
 {
-	if (parent->type == CREATURE)
-	{ 
-		std::cout << OUTPUTS::_ACCEPTED + "You are inside a " + parent->name + ", your current host.\n";
-		parent->parent->Look();
-	}
-	else
-		parent->Look();
-}
+	std::cout << description + "\n";
 
-void Player::LookAt(const std::string& thing) const
-{
-	if (parent->type == CREATURE)
+	if (IsParasite())
 	{
-		if (IsEqual(thing, NAMES::HOST))
-			parent->Look();
-		else
-			parent->LookAt(thing);
-	}
-	else
-	{
-		if (IsEqual(thing,NAMES::YOU))
-			State();
-		else
-			parent->LookAt(thing);
+		std::cout << "You are inside a host, ";
+		parent->Look(origin);
 	}
 }
 
-void Player::State() const
+bool Player::LookAt(Entity* origin,const std::string& thing) const
 {
-	if (evolution_status == LARVA)
+	bool thing_found = false;
+
+	Entity* item = FindByString(thing);
+	if (item != nullptr)
 	{
-		std::cout << OUTPUTS::_ACCEPTED + PLAYER_CONSTANTS::LARVA_DESC + "\n";
+		thing_found = true;
+		item->Look(origin);
 	}
-	else if (evolution_status == ARACHNID)
+	else
 	{
-		std::cout << OUTPUTS::_ACCEPTED + PLAYER_CONSTANTS::ARACHNID_DESC + "\n";
-	}
-	else if (evolution_status == BIPED)
-	{
-		std::cout << OUTPUTS::_ACCEPTED + PLAYER_CONSTANTS::BIPED_DESC + "\n";
+		thing_found = parent->LookAt(GetPOV(), thing);
 	}
 
-	if (parent->type == CREATURE)
-	{
-		std::cout << OUTPUTS::_ACCEPTED + "You are inside a " + parent->name + ", your current host.\n";
-	}
+	return thing_found;
+}
+
+bool Player::LookAtInside(Entity* origin,const std::string& item_name, const std::string& container_name) const
+{
+	bool all_found = false;
+
+	Entity* container = FindByString(container_name);
+	if (container == nullptr)
+		all_found = parent->LookAtInside(GetPOV(), item_name, container_name);
+	else
+		all_found = container->LookAt(origin,item_name);
+
+	return all_found;
+}
+
+bool Player::Inventory() const
+{
+	return PrintItems(LIST_INTROS::INVENTORY_PLAYER, true);
+}
+
+Room* Player::GetRoom() const
+{
+	if (IsParasite())
+		return (Room*)parent->parent;
+	else
+		return (Room*)parent;
+}
+
+Entity* Player::GetPOV() const
+{
+	if (IsParasite())
+		return parent;
+	else
+		return (Entity*)this;
+}
+
+bool Player::IsParasite() const
+{
+	return (parent->type == CREATURE);
 }

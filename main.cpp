@@ -19,6 +19,8 @@ int main()
 
 	while (true)
 	{
+		std::cout << OUTPUTS::_WAITING;
+
 		std::getline(std::cin, player_input);
 		ss.str(player_input);
 
@@ -37,7 +39,7 @@ int main()
 		ss.clear();
 	}
 
-	std::cout << "Thanks for playing!";
+	std::cout << "THANKS FOR PLAYING!";
 
 	getchar();
 

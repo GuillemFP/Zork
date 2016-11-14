@@ -7,6 +7,7 @@
 
 bool IsEqual(const std::string& first, const std::string& second);
 bool IsEqual(const std::string& first, const std::vector<std::string>& second);
+bool IsEqual(const std::vector<std::string>& first, const std::vector<std::string>& second);
 
 #endif // !GLOBALS_H
 
