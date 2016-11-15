@@ -20,8 +20,7 @@ void Player::Look(Entity* origin) const
 
 	if (IsParasite())
 	{
-		std::cout << "You are inside a host, ";
-		parent->Look(origin);
+		std::cout << "You are inside a host, " << parent->name << ".\n";
 	}
 }
 

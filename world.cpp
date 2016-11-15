@@ -94,6 +94,10 @@ bool World::CommandHandler(std::vector<std::string>& args, std::string& output)
 					accepted_cmd = false;
 				}
 			}
+			else if (IsEqual(args[0],COMMAND::STATE))
+			{
+				player->Look(player);
+			}
 			else
 			{
 				output = OUTPUTS::_ERROR + OUTPUTS::MISTAKE;
