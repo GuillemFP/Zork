@@ -17,15 +17,16 @@ class Exit;
 class Item : public Entity
 {
 public:
-	Item(const std::string& name, const std::string& description, Entity* parent, Item_Type item_type, Exit* opens = nullptr, int damage = 0, bool big = false);
+	Item(const std::string& name, const std::string& description, Entity* parent, Item_Type item_type, Exit* opens = nullptr, int damage = 0, bool in_pocket = true);
 	~Item();
 	void Look(Entity* origin) const;
 	bool LookAt(Entity* origin,const std::string& thing) const;
+	bool Take(Entity* origin, const std::string& thing);
 
 	Item_Type item_type;
 	Exit* opens;
 	int damage;
-	bool big;
+	bool in_pocket;
 };
 
 

@@ -35,7 +35,7 @@ namespace NAMES
 
 namespace CONNECTORS
 {
-	const vector<string> FROM = { "from" };
+	const vector<string> FROM = { "from","inside","in" };
 	const vector<string> INTO = { "into","to","inside" };
 	const vector<string> AT = { "at" };
 	const vector<string> INSIDE = { "inside","in","on" };
@@ -60,10 +60,14 @@ namespace LIST_INTROS
 	const string INVENTORY_HOST = "Your host hold: ";
 	const string ROOM_EXITS = "There is a way out of this room: ";
 	const string ROOM_ITEMS = "There is something interesting in this room: ";
-	const string ROOM_CREATURES = "There is another sentient creature in this room: ";
+	const string ROOM_CREATURES_ALIVE = "There are more sentient creature in this room: ";
+	const string ROOM_CREATURES_DEAD = "There are dead creatures in this room: ";
 	const string ITEM_ITEMS = "There is something inside: ";
 	const string CREATURE_ALIVE_ITEMS = "It holds, that you can see: ";
 	const string CREATURE_DEATH_ITEMS = "It has: ";
+	const string TAKE_ITEM = "You take ";
+	const string TAKE_ITEM_TO = " and put in into your inventory.";
+	const string FROM = " from ";
 }
 
 namespace PLAYER_CONSTANTS

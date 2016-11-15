@@ -11,11 +11,11 @@ public:
 	~Creature();
 	virtual void Look(Entity* origin) const;
 	virtual bool LookAt(Entity* origin,const std::string& thing) const;
-	virtual bool LookAtInside(Entity* origin,const std::string& item_name, const std::string& container_name) const;
+	virtual bool Take(Entity* origin, const std::string& thing);
 	bool Move(const std::string& direction);
 	bool Open(const std::string& direction);
 	virtual bool Inventory() const;
-	bool PrintItems(const std::string& intro, bool print_all) const;
+	bool PrintItems(const std::string& intro, bool only_seen) const;
 	virtual Room* GetRoom() const;
 
 	int hit_points;

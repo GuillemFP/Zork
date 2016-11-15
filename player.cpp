@@ -43,22 +43,14 @@ bool Player::LookAt(Entity* origin,const std::string& thing) const
 	return thing_found;
 }
 
-bool Player::LookAtInside(Entity* origin,const std::string& item_name, const std::string& container_name) const
+bool Player::Take(Entity* origin, const std::string& thing)
 {
-	bool all_found = false;
-
-	Entity* container = FindByString(container_name);
-	if (container == nullptr)
-		all_found = parent->LookAtInside(GetPOV(), item_name, container_name);
-	else
-		all_found = container->LookAt(origin,item_name);
-
-	return all_found;
+	return false;
 }
 
 bool Player::Inventory() const
 {
-	return PrintItems(LIST_INTROS::INVENTORY_PLAYER, true);
+	return PrintItems(LIST_INTROS::INVENTORY_PLAYER, false);
 }
 
 Room* Player::GetRoom() const

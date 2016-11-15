@@ -29,7 +29,8 @@ World::World()
 	Item* report1 = new Item("Report", "An egg from Zork origin was recovered few days ago from Zork's natal planet. Further research is needed.", documents1, INFO);
 	Item* photo1 = new Item("Photo", "A photo showing a corpse of a spider-like alien.", documents1, INFO);
 	Item* scalpel = new Item("Scalpel", "A small scalpel, stained with fresh blood.", lab, WEAPON);
-	Item* lab_key = new Item("Key", "A small metalic key, probably that of a door", lab, KEY, exit3);
+	Item* lab_key = new Item("Key", "A small metalic key, probably that of a door.", lab, KEY, exit3);
+	Item* rifle = new Item("Rifle", "A human weapon that fires solid projectiles.", lab, WEAPON, nullptr,0,false);
 
 	exit3->SetKey(lab_key);
 
@@ -39,10 +40,16 @@ World::World()
 	entities.push_back(scalpel);
 	entities.push_back(lab_key);
 
+	Creature* scientist = new Creature("Scientist", "A human wearing a lab coat.", lab);
+	entities.push_back(scientist);
+
 //	player = new Player("Player", PLAYER_CONSTANTS::LARVA_DESC, lab);
 	player = new Player("Player", PLAYER_CONSTANTS::LARVA_DESC, lab, 100, true);
 	entities.push_back(player);
-	lab_key->ChangeParent(player);
+
+	lab_key->ChangeParent(scientist);
+	rifle->ChangeParent(scientist);
+	scientist->alive = false;
 
 	LookHandler();
 	player->Look(player);
@@ -72,6 +79,11 @@ bool World::CommandHandler(std::vector<std::string>& args, std::string& output)
 			else if (IsEqual(args[0], COMMAND::MOVE))
 			{
 				output = OUTPUTS::_ERROR + args[0] + OUTPUTS::WHERE;
+				accepted_cmd = false;
+			}
+			else if (IsEqual(args[0], COMMAND::TAKE))
+			{
+				output = OUTPUTS::_ERROR + args[0] + OUTPUTS::WHAT;
 				accepted_cmd = false;
 			}
 			else if (IsEqual(args[0], COMMAND::INVENTORY))
@@ -139,9 +151,9 @@ bool World::CommandHandler(std::vector<std::string>& args, std::string& output)
 					}
 				}
 			}
-			else if (IsEqual(args[0], COMMAND::OPEN))
+			else if (IsEqual(args[0], COMMAND::TAKE))
 			{
-				if (true)
+				if (!TakeHandler(args[1]))
 				{
 					output = OUTPUTS::_ERROR + args[0] + OUTPUTS::WHAT;
 					accepted_cmd = false;
@@ -197,6 +209,19 @@ bool World::CommandHandler(std::vector<std::string>& args, std::string& output)
 					accepted_cmd = false;
 				}
 			}
+			else if (IsEqual(args[0], COMMAND::TAKE) && IsEqual(args[2], CONNECTORS::FROM))
+			{
+				if (!TakeFromHandler(args[1], args[3]))
+				{
+					output = OUTPUTS::_ERROR + args[0] + OUTPUTS::WHAT + " " + args[2] + OUTPUTS::WHAT;
+					accepted_cmd = false;
+				}
+			}
+			else
+			{
+				output = OUTPUTS::_ERROR + OUTPUTS::MISTAKE;
+				accepted_cmd = false;
+			}
 			break;
 		}
 		case 5:
@@ -208,6 +233,11 @@ bool World::CommandHandler(std::vector<std::string>& args, std::string& output)
 					output = OUTPUTS::_ERROR + args[0] + " " + args[1] + OUTPUTS::WHAT + " " + args[3] + OUTPUTS::WHAT;
 					accepted_cmd = false;
 				}
+			}
+			else
+			{
+				output = OUTPUTS::_ERROR + OUTPUTS::MISTAKE;
+				accepted_cmd = false;
 			}
 			break;
 		}
@@ -251,31 +281,46 @@ bool World::LookAtHandler(const std::string& thing)
 
 bool World::LookAtInsideHandler(const std::string& item_name, const std::string& container_name)
 {
-	Entity* POV = player->GetPOV();
+	Entity* pov = player->GetPOV();
 
-	return POV->LookAtInside(POV, item_name, container_name);
+	return pov->LookAtInside(pov, item_name, container_name);
+}
+
+bool World::TakeHandler(const std::string& thing)
+{
+	Entity* pov = player->GetPOV();
+	Room* present_room = player->GetRoom();
+
+	return present_room->Take(pov, thing);
+}
+
+bool World::TakeFromHandler(const std::string& item_name, const std::string& container_name)
+{
+	Entity* pov = player->GetPOV();
+
+	return pov->TakeFrom(pov, item_name, container_name);
 }
 
 bool World::MoveHandler(const std::string& direction)
 {
-	Entity* POV = player->GetPOV();
-	Creature* walker = (Creature*)POV;
+	Entity* pov = player->GetPOV();
+	Creature* walker = (Creature*)pov;
 
 	return walker->Move(direction);
 }
 
 bool World::OpenHandler(const std::string& direction)
 {
-	Entity* POV = player->GetPOV();
-	Creature* opener = (Creature*)POV;
+	Entity* pov = player->GetPOV();
+	Creature* opener = (Creature*)pov;
 
 	return opener->Open(direction);
 }
 
 bool World::InventoryHandler()
 {
-	Entity* POV = player->GetPOV();
-	Creature* controlled = (Creature*)POV;
+	Entity* pov = player->GetPOV();
+	Creature* controlled = (Creature*)pov;
 
 	return controlled->Inventory();
 }

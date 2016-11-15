@@ -21,15 +21,17 @@ void Creature::Look(Entity* origin) const
 {
 	Creature* creature = (Creature*)origin;
 
+	std::cout << name << ": " << description;
+
 	if (alive)
 	{
-		std::cout << name << ": " << description << "\n";
-		PrintSubentitiesByType(name + LIST_INTROS::CREATURE_ALIVE_ITEMS, ITEM);
+		std::cout << "\n";
+		PrintItems(LIST_INTROS::CREATURE_ALIVE_ITEMS, true);
 	}
 	else
 	{
-		std::cout << "The corpse of a " + name << ": " << description << "\n";
-		PrintSubentitiesByType(name + LIST_INTROS::CREATURE_DEATH_ITEMS, ITEM);
+		std::cout << " It's dead.\n";
+		PrintItems(LIST_INTROS::CREATURE_DEATH_ITEMS, false);
 	}
 }
 
@@ -37,9 +39,14 @@ bool Creature::LookAt(Entity* origin,const std::string& thing) const
 {
 	bool thing_found = false;
 	
-	Entity* element = FindByString(thing);
-	if (element->type != PLAYER && element != nullptr)
+	Entity* element = FindByStringExclude(thing, PLAYER);
+	if (element != nullptr)
 	{
+		Item* item = (Item*)element;
+		if (this->alive && item->in_pocket)
+		{
+			return false;
+		}
 		thing_found = true;
 		element->Look(origin);
 	}
@@ -50,17 +57,20 @@ bool Creature::LookAt(Entity* origin,const std::string& thing) const
 	return thing_found;
 }
 
-bool Creature::LookAtInside(Entity* origin,const std::string& item_name, const std::string& container_name) const
+bool Creature::Take(Entity* origin, const std::string& thing)
 {
-	bool all_found = false;
+	if (this == (Creature*)origin)
+	{
+		return false;
+	}
 
-	Entity* container = FindByString(container_name);
-	if (container == nullptr)
-		all_found = parent->LookAtInside(origin,item_name, container_name);
-	else
-		all_found = container->LookAt(origin,item_name);
-
-	return all_found;
+	if (alive)
+	{
+		std::cout << "You cannot take anything from a living creature.\n";
+		return true;
+	}
+	
+	return Entity::Take(origin, thing);
 }
 
 bool Creature::Move(const std::string& direction)
@@ -109,14 +119,39 @@ bool Creature::Open(const std::string& direction)
 
 bool Creature::Inventory() const
 {
-	return PrintItems(LIST_INTROS::INVENTORY_HOST, true);
+	return PrintItems(LIST_INTROS::INVENTORY_HOST, false);
 }
 
-bool Creature::PrintItems(const std::string& intro, bool print_all) const
+bool Creature::PrintItems(const std::string& intro, bool only_seen) const
 {
 	bool item_found = false;
 
-	if (print_all)
+	if (only_seen)
+	{
+		for (std::list<Entity*>::const_iterator it = contains.begin(); it != contains.end(); ++it)
+		{
+			if ((*it)->type == ITEM)
+			{
+				Item* item = (Item*)*it;
+				if (!item->in_pocket)
+				{
+					if (item_found)
+					{
+						std::cout << ", " << (*it)->name;
+					}
+					else
+					{
+						std::cout << intro << (*it)->name;
+						item_found = true;
+					}
+				}
+			}
+		}
+		if (item_found)
+			std::cout << ".\n";
+		
+	}
+	else
 	{
 		for (std::list<Entity*>::const_iterator it = contains.begin(); it != contains.end(); ++it)
 		{
@@ -135,31 +170,7 @@ bool Creature::PrintItems(const std::string& intro, bool print_all) const
 			}
 		}
 		if (item_found)
-			std::cout << "\n";
-	}
-	else
-	{
-		for (std::list<Entity*>::const_iterator it = contains.begin(); it != contains.end(); ++it)
-		{
-			if ((*it)->type == ITEM)
-			{
-				Item* item = (Item*)*it;
-				if (item->big)
-				{
-					if (item_found)
-					{
-						std::cout << ", " << (*it)->name;
-					}
-					else
-					{
-						std::cout << intro << (*it)->name;
-						item_found = true;
-					}
-				}
-			}
-		}
-		if (item_found)
-			std::cout << "\n";
+			std::cout << ".\n";
 	}
 
 	return item_found;

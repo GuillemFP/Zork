@@ -22,20 +22,19 @@ void Room::Look(Entity* origin) const
 
 	PrintSubentitiesByType(LIST_INTROS::ROOM_EXITS, EXIT);
 	PrintSubentitiesByType(LIST_INTROS::ROOM_ITEMS, ITEM);
-	PrintSubentitiesByTypeExcludeOrigin(LIST_INTROS::ROOM_CREATURES, CREATURE, origin);
+	PrintCreaturesByStatus(LIST_INTROS::ROOM_CREATURES_ALIVE, true, origin);
+	PrintCreaturesByStatus(LIST_INTROS::ROOM_CREATURES_DEAD, false, origin);
 }
 
 bool Room::LookAt(Entity* origin, const std::string& thing) const
 {
 	Creature* creature = (Creature*)origin;
 	
-	for (std::list<Entity*>::const_iterator it = contains.begin(); it != contains.end(); ++it)
+	Entity* entity_found = FindByStringExclude(thing, EXIT);
+	if (entity_found != nullptr)
 	{
-		if (IsEqual(thing, (*it)->name) && (*it)->type != EXIT )
-		{
-			(*it)->Look(origin);
-			return true;
-		}
+		entity_found->Look(origin);
+		return true;
 	}
 
 	Exit* exit = GetExit(thing);
@@ -63,6 +62,19 @@ bool Room::LookAtInside(Entity* origin, const std::string& item_name, const std:
 		all_found = container->LookAt(origin, item_name);
 	else if (IsEqual(container_name, name))
 		all_found = LookAt(origin, item_name);
+
+	return all_found;
+}
+
+bool Room::TakeFrom(Entity* origin, const std::string& item_name, const std::string& container_name)
+{
+	bool all_found = false;
+
+	Entity* container = FindByStringExclude(container_name, PLAYER);
+	if (container != nullptr)
+		all_found = container->Take(origin, item_name);
+	else if (IsEqual(container_name, name))
+		all_found = Take(origin, item_name);
 
 	return all_found;
 }
@@ -109,4 +121,31 @@ void Room::PrintSubentitiesByType(const std::string& intro, Entity_Type type_che
 		if (type_found)
 			std::cout << "\n";
 	}
+}
+
+void Room::PrintCreaturesByStatus(const std::string& intro, bool alive, Entity* origin) const
+{
+	bool type_found = false;
+
+	for (std::list<Entity*>::const_iterator it = contains.begin(); it != contains.end(); ++it)
+	{
+		if ((*it)->type == CREATURE && *it != origin)
+		{
+			Creature* creature = (Creature*)*it;
+			if (creature->alive == alive)
+			{
+				if (type_found)
+				{
+					std::cout << ", " << creature->name;
+				}
+				else
+				{
+					std::cout << intro << creature->name;
+					type_found = true;
+				}
+			}
+		}
+	}
+	if (type_found)
+		std::cout << ".\n";
 }
