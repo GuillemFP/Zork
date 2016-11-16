@@ -3,8 +3,8 @@
 #include <iostream>
 #include "item.h"
 
-Creature::Creature(const std::string& name, const std::string& description, Entity* parent, bool smart, int hp, int evo_points, int damage) :
-	Entity(name, description, parent), smart(smart), max_hit_points(hp), evolution_points(evo_points), damage(damage)
+Creature::Creature(const std::string& name, const std::string& description, Entity* parent, bool smart, int hp, int evo_points, int damage, bool small) :
+	Entity(name, description, parent), smart(smart), max_hit_points(hp), evolution_points(evo_points), damage(damage), small(small)
 {
 	type = CREATURE;
 	hit_points = max_hit_points;
@@ -26,7 +26,7 @@ void Creature::Look(Entity* origin) const
 		if (alive)
 		{
 			if (IsInjured())
-				std::cout << " It's injured.";
+				std::cout << " It's" << OUTPUTS::INJURED;
 			std::cout << "\n";
 			PrintItems(LIST_INTROS::CREATURE_ALIVE_ITEMS, true);
 		}
@@ -40,7 +40,7 @@ void Creature::Look(Entity* origin) const
 	{
 		std::cout << " It is your current host.";
 		if (IsInjured())
-			std::cout << " It's injured.";
+			std::cout << " It's" << OUTPUTS::INJURED;
 		std::cout << "\n";
 		PrintItems(LIST_INTROS::CREATURE_LIST_ITEMS, false);
 	}
@@ -55,7 +55,7 @@ bool Creature::LookAt(Entity* origin,const std::string& thing) const
 	if (element != nullptr)
 	{
 		Item* item = (Item*)element;
-		if (this->alive && item->in_pocket)
+		if (this->alive && item->in_pocket && !IsHost())
 		{
 			return false;
 		}
@@ -99,8 +99,15 @@ bool Creature::Move(const std::string& direction)
 	}
 	else
 	{
-		std::cout << "You go " + direction + " through " + exit->GetDescription(room) + ". " + exit->connection_desc + "\n";
-		ChangeParent(exit->GetDestination(room));
+		if (!small && exit->small)
+		{
+			std::cout << "You cannot go in that direction. The opening is to small for you.\n";
+		}
+		else
+		{
+			std::cout << "You go " + direction + " through " + exit->GetDescription(room) + ". " + exit->connection_desc + "\n";
+			ChangeParent(exit->GetDestination(room));
+		}
 	}
 
 	return true;
@@ -137,19 +144,15 @@ bool Creature::Inventory() const
 void Creature::Damage(int damage_taken)
 {
 	hit_points -= damage_taken;
-	if (IsHost())
-		std::cout << name << " takes damage.";
-	else
-	{
-		if (parent->FindByString(PLAYER_CONSTANTS::PLAYER))
-			std::cout << name << " takes damage.";		
-	}
-	
+	std::cout << name << " takes damage.";
+
 	if (hit_points <= 0)
 	{
 		std::cout << " ";
 		Kill();
 	}
+	else if (IsInjured())
+		std::cout << " " << name << " it's" << OUTPUTS::INJURED << "\n";
 	else
 		std::cout << "\n";
 }
@@ -165,21 +168,65 @@ void Creature::Kill()
 {
 	alive = false;
 	
+	std::cout << name << " drops dead on the ground.\n";
 	if (IsHost())
 	{
 		Entity* player = FindParasite();
-		std::cout << name << " drops dead on the ground. ";
 		player->ChangeParent(parent);
 		std::cout << "You emerge from the corpse of " << name << " into " << parent->name << ".\n";
 	}
-	else
-	{
-		if (parent->FindByString(PLAYER_CONSTANTS::PLAYER))
-			std::cout << name << " drops dead on the ground.\n";
-	}
-
+	
 	if (hit_points > 0)
 		hit_points = 0;
+}
+
+bool Creature::Attack(Creature* target)
+{
+	if (target != this)
+	{
+		if (!IsHost())
+		{
+			std::list<Entity*> items;
+			FindAllByType(items, ITEM);
+			Item* weapon = BestWeapon(items, damage);
+			if (weapon != nullptr)
+			{
+				std::cout << name << " attacks " << target->name << " with " << weapon->name << ". ";
+				target->Damage(weapon->damage);
+			}
+			else
+			{
+				std::cout << name << " attacks " << target->name << " with its fists. ";
+				target->Damage(damage);
+			}
+		}
+		else
+		{
+			std::cout << name << " attacks " << target->name << " with its fists. ";
+			target->Damage(damage);
+		}
+		return true;
+	}
+
+	return false;
+}
+
+bool Creature::AttackWith(Creature* target, Item* weapon)
+{
+	if (target != this)
+	{
+		if (this->type == PLAYER)
+			std::cout << "You attack " << target->name << " with " << weapon->name << ".";
+		else
+			std::cout << name << " attacks " << target->name << " with " << weapon->name << ".";
+		if (weapon->damage == 0)
+			std::cout << "Surely " << weapon->name << " it's not the best weapon one can find around.";
+		std::cout << " ";
+		target->Damage(weapon->damage);
+		return true;
+	}
+
+	return false;
 }
 
 bool Creature::PrintItems(const std::string& intro, bool only_seen) const
@@ -247,7 +294,7 @@ bool Creature::IsHost() const
 
 bool Creature::IsInjured() const
 {
-	return (float)hit_points / max_hit_points < 0.5;
+	return (float)hit_points / max_hit_points < 0.3;
 }
 
 Entity* Creature::FindParasite() const
@@ -258,4 +305,22 @@ Entity* Creature::FindParasite() const
 Room* Creature::GetRoom() const
 {
 	return (Room*)parent;
+}
+
+Item* Creature::BestWeapon(std::list<Entity*>& items, int default_damage) const
+{
+	Item* best_weapon = nullptr;
+	int best_damage = default_damage;
+
+	for (std::list<Entity*>::const_iterator it = items.begin(); it!=items.end(); ++it)
+	{
+		Item* option = (Item*)(*it);
+		if (option->item_type == WEAPON && option->damage >= best_damage)
+		{
+			best_weapon = option;
+			best_damage = option->damage;
+		}
+	}
+
+	return best_weapon;
 }

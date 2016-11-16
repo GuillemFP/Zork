@@ -20,12 +20,14 @@ public:
 	void Look(Entity* origin) const;
 	bool LookAt(Entity* origin,const std::string& thing) const;
 	bool Take(Entity* origin, const std::string& thing);
+	bool Move(const std::string& direction);
 	bool Inventory() const;
 	bool Infect(const std::string& target);
 	bool Feed();
 	bool Evolve();
 	void Damage(int damage_taken);
 	void Kill();
+	bool Attack(Creature* target);
 	Room* GetRoom() const;
 	Creature* GetHost() const;
 	Entity* GetPOV() const;

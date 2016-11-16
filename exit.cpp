@@ -2,14 +2,13 @@
 #include <iostream>
 
 Exit::Exit(const string& name1, const string& name2, const string& descript_1, const string& descript_2, const string& description, 
-	Room* room1, Room* room2, Item* key, bool locked) : Entity(name1, descript_1, room1),
+	Room* room1, Room* room2, Item* key, bool locked, bool small) : Entity(name1, descript_1, room1),
 	destination_name(name2), destination_desc(descript_2), connection_desc(description), destination_entity(room2),
-	locked(locked), key(key)
+	locked(locked), key(key), small(small)
 {
 	type = EXIT;
 
 	room2->contains.push_back(this);
-	
 }
 
 Exit::~Exit()

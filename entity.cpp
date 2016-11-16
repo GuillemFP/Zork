@@ -204,6 +204,17 @@ Entity* Entity::FindEntityByStringExclude(const std::string& thing, Entity_Type 
 	return nullptr;
 }
 
+void Entity::FindAllByType(std::list<Entity*>& list_entities, Entity_Type type_match) const
+{
+	for (std::list<Entity*>::const_iterator it = contains.begin(); it != contains.end(); ++it)
+	{
+		if ((*it)->type == type_match)
+		{
+			list_entities.push_back(*it);
+		}
+	}
+}
+
 void Entity::PrintSubentitiesByType(const std::string& intro, Entity_Type type_check) const
 {
 	bool type_found = false;

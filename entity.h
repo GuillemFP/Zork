@@ -36,6 +36,7 @@ public:
 	Entity* FindEntityByString(const std::string& thing) const;
 	Entity* FindEntityByStringType(const std::string& thing, Entity_Type type_match) const;
 	Entity* FindEntityByStringExclude(const std::string& thing, Entity_Type type_exclude) const;
+	void FindAllByType(std::list<Entity*>& list_entities, Entity_Type type) const;
 	virtual void PrintSubentitiesByType(const std::string& intro, Entity_Type type_check) const;
 	virtual void PrintSubentitiesByTypeExcludeOrigin(const std::string& intro, Entity_Type type_check, Entity* origin) const;
 

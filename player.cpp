@@ -4,7 +4,7 @@
 #include <iostream>
 
 Player::Player(const std::string& name, const std::string& description, Entity* parent, bool smart, int hp, int damage) :
-	Creature(name, description, parent, smart, hp, 0, damage)
+	Creature(name, description, parent, smart, hp, 0, damage, true)
 {
 	type = PLAYER;
 	evolution_status = LARVA;
@@ -20,12 +20,21 @@ void Player::Look(Entity* origin) const
 {
 	std::cout << description;
 	if (IsInjured())
-		std::cout << " You are injured.";
+		std::cout << " You are" << OUTPUTS::INJURED;
 	std::cout << "\n";
 
 	if (IsParasite())
 	{
 		std::cout << "You are inside a host, " << parent->name << ".\n";
+	}
+
+	if (evolution_status == LARVA && evolution_points >= STATS_VALUE::LARVA_TO_ARACHNID)
+	{
+		std::cout << "You are ready to evolve.\n";
+	}
+	else if (evolution_status == ARACHNID && evolution_points >= STATS_VALUE::ARACHNID_TO_BIPED)
+	{
+		std::cout << "You are ready to evolve.\n";
 	}
 }
 
@@ -52,6 +61,38 @@ bool Player::Take(Entity* origin, const std::string& thing)
 	return false;
 }
 
+bool Player::Move(const std::string& direction)
+{
+	Room* room = GetRoom();
+	Exit* exit = room->GetExit(direction);
+
+	if (exit == nullptr)
+		return false;
+
+	if (exit->locked)
+	{
+		std::cout << "It's locked. You cannot move further in that direction.\n";
+	}
+	else
+	{
+		if (!small && exit->small)
+		{
+			std::cout << "You cannot go in that direction. The opening is to small for you.\n";
+		}
+		else if (evolution_status == LARVA && !exit->small)
+		{
+			std::cout << "You are to small and weak to even open the door in that direction.\n";
+		}
+		else
+		{
+			std::cout << "You go " + direction + " through " + exit->GetDescription(room) + ". " + exit->connection_desc + "\n";
+			ChangeParent(exit->GetDestination(room));
+		}
+	}
+
+	return true;
+}
+
 bool Player::Inventory() const
 {
 	return PrintItems(LIST_INTROS::INVENTORY_PLAYER, false);
@@ -73,6 +114,19 @@ bool Player::Infect(const std::string& target)
 			Creature* creature = (Creature*)target_creature;
 			if (creature->alive)
 			{
+				if (evolution_status == LARVA && creature->IsInjured())
+				{
+					std::cout << "You stealthy crawl in " << creature->name << " direction. ";
+				}
+				else
+				{
+					std::cout << creature->name << " notices you while you are approching it.\n";
+					bool attack_succeds = creature->Attack(this);
+					if (!alive)
+					{
+						return true;
+					}
+				}
 				ChangeParent(creature);
 				std::cout << "You infected " << creature->name << ". It now serves as your host. You can control him and feed on it. You cannot abandon this corpse until it dies.\n";
 			}
@@ -145,19 +199,16 @@ bool Player::Evolve()
 			Look(this);
 			max_hit_points = STATS_VALUE::BIPED_HP;
 			Heal(STATS_VALUE::BIPED_HP - STATS_VALUE::ARACHNID_HP);
-			damage = STATS_VALUE::BIPED_HP;
+			damage = STATS_VALUE::BIPED_DAMAGE;
 			can_take = true;
 			can_infect = false;
 			smart = true;
+			small = false;
 			return true;
 		}
 			return false;
 	}
-	else
-	{
-		std::cout << "You cannot evolve any further. You are a perfect being among your species.\n";
-		return true;
-	}
+	return false;
 }
 
 void Player::Damage(int damage_taken)
@@ -170,13 +221,29 @@ void Player::Damage(int damage_taken)
 		std::cout << " ";
 		Kill();
 	}
-	std::cout << "\n";
+	else if (IsInjured())
+		std::cout << " " << "You are" << OUTPUTS::INJURED << "\n";
+	else
+		std::cout << "\n";
 }
 
 void Player::Kill()
 {
 	alive = false;
 	std::cout << "You drop dead on the ground.\n";
+}
+
+bool Player::Attack(Creature* target)
+{
+	if (evolution_status == LARVA)
+		std::cout << "You attack " << target->name << " with your fangs.";
+	else if (evolution_status == ARACHNID)
+		std::cout << "You attack " << target->name << " with your claws.";
+	else if (evolution_status == BIPED)
+		std::cout << "You jump at " << target->name << " and viciously tear its flesh apart.";
+	std::cout << " ";
+	target->Damage(damage);
+	return true;
 }
 
 Room* Player::GetRoom() const

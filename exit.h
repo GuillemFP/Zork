@@ -15,7 +15,7 @@ class Exit : public Entity
 {
 public:
 	Exit(const string& name1, const string& name2, const string& descript_1, const string& descript_2, const string& description,
-		Room* room1, Room* room2, Item* key = nullptr, bool locked = false);
+		Room* room1, Room* room2, Item* key = nullptr, bool locked = false, bool small = false);
 	~Exit();
 	void Look(Entity* origin) const;
 	const string& GetName(const Room* origin) const;
@@ -31,7 +31,7 @@ public:
 	Room* destination_entity;
 	bool locked;
 	Item* key;
-
+	bool small;
 };
 
 
