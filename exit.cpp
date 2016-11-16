@@ -51,7 +51,7 @@ const string& Exit::GetDescription(const Room* origin) const
 	if (destination_entity == origin)
 		return destination_desc;
 
-	return NULL;
+	return description;
 }
 
 Room* Exit::GetDestination(const Room* origin) const
@@ -61,7 +61,7 @@ Room* Exit::GetDestination(const Room* origin) const
 	if (destination_entity == origin)
 		return (Room*)parent;
 
-	return nullptr;
+	return destination_entity;
 }
 
 void Exit::SetKey(Item* needed_key)
