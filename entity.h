@@ -32,9 +32,10 @@ public:
 
 	void ChangeParent(Entity* new_parent);
 	bool FindByEntity(Entity* match_entity) const;
-	Entity* FindByString(const std::string& thing) const;
-	Entity* FindByStringType(const std::string& thing, Entity_Type type_match) const;
-	Entity* FindByStringExclude(const std::string& thing, Entity_Type type_exclude) const;
+	bool FindByString(const std::string& thing) const;
+	Entity* FindEntityByString(const std::string& thing) const;
+	Entity* FindEntityByStringType(const std::string& thing, Entity_Type type_match) const;
+	Entity* FindEntityByStringExclude(const std::string& thing, Entity_Type type_exclude) const;
 	virtual void PrintSubentitiesByType(const std::string& intro, Entity_Type type_check) const;
 	virtual void PrintSubentitiesByTypeExcludeOrigin(const std::string& intro, Entity_Type type_check, Entity* origin) const;
 

@@ -38,7 +38,7 @@ bool Entity::LookAt(Entity* origin, const std::string& thing) const
 
 bool Entity::LookAtInside(Entity* origin, const std::string& item_name, const std::string& container_name) const
 {
-	Entity* container = FindByStringExclude(container_name,EXIT);
+	Entity* container = FindEntityByStringExclude(container_name,EXIT);
 	if (container == nullptr)
 	{
 		if (parent != nullptr)
@@ -57,7 +57,7 @@ bool Entity::LookAtInside(Entity* origin, const std::string& item_name, const st
 
 bool Entity::Take(Entity* origin, const std::string& thing)
 {
-	Entity* entity_found = FindByStringType(thing, ITEM);
+	Entity* entity_found = FindEntityByStringType(thing, ITEM);
 	if (entity_found != nullptr)
 	{
 		std::cout << LIST_INTROS::TAKE_ITEM << entity_found->name << LIST_INTROS::FROM << entity_found->parent->name << LIST_INTROS::TAKE_ITEM_TO << "\n";
@@ -70,7 +70,7 @@ bool Entity::Take(Entity* origin, const std::string& thing)
 
 bool Entity::TakeFrom(Entity* origin, const std::string& item_name, const std::string& container_name)
 {
-	Entity* container = FindByStringExclude(container_name,PLAYER);
+	Entity* container = FindEntityByStringExclude(container_name,PLAYER);
 	if (container == nullptr)
 	{
 		if (parent != nullptr)
@@ -89,10 +89,10 @@ bool Entity::TakeFrom(Entity* origin, const std::string& item_name, const std::s
 
 bool Entity::Drop(Entity* item_drop, const std::string& container_name)
 {
-	Entity* container = FindByStringType(container_name, ITEM);
+	Entity* container = FindEntityByStringType(container_name, ITEM);
 	if (container == nullptr)
 	{
-		container = FindByStringType(container_name, CREATURE);
+		container = FindEntityByStringType(container_name, CREATURE);
 		if (container == nullptr)
 		{
 			if (parent != nullptr)
@@ -152,7 +152,20 @@ bool Entity::FindByEntity(Entity* match_entity) const
 	return false;
 }
 
-Entity* Entity::FindByString(const std::string& thing) const
+bool Entity::FindByString(const std::string& thing) const
+{
+	for (std::list<Entity*>::const_iterator it = contains.begin(); it != contains.end(); ++it)
+	{
+		if (IsEqual(thing, (*it)->name))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+Entity* Entity::FindEntityByString(const std::string& thing) const
 {
 	for (std::list<Entity*>::const_iterator it = contains.begin(); it != contains.end(); ++it)
 	{
@@ -165,7 +178,7 @@ Entity* Entity::FindByString(const std::string& thing) const
 	return nullptr;
 }
 
-Entity* Entity::FindByStringType(const std::string& thing, Entity_Type type_match) const
+Entity* Entity::FindEntityByStringType(const std::string& thing, Entity_Type type_match) const
 {
 	for (std::list<Entity*>::const_iterator it = contains.begin(); it != contains.end(); ++it)
 	{
@@ -178,7 +191,7 @@ Entity* Entity::FindByStringType(const std::string& thing, Entity_Type type_matc
 	return nullptr;
 }
 
-Entity* Entity::FindByStringExclude(const std::string& thing, Entity_Type type_exclude) const
+Entity* Entity::FindEntityByStringExclude(const std::string& thing, Entity_Type type_exclude) const
 {
 	for (std::list<Entity*>::const_iterator it = contains.begin(); it != contains.end(); ++it)
 	{

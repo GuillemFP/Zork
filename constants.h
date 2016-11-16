@@ -52,6 +52,8 @@ namespace OUTPUTS
 	const string WHAT = " what?";
 	const string CANNOT = "I cannot ";
 	const string INVENTORY_EMPTY = "The inventory is empty.";
+	const string NOT_EVOLVE = "You have not feed enough to evolve.";
+	const string NOT_FEED = "You can only feed from inside a living creature.";
 }
 
 namespace LIST_INTROS
@@ -64,7 +66,7 @@ namespace LIST_INTROS
 	const string ROOM_CREATURES_DEAD = "There are dead creatures in this room: ";
 	const string ITEM_ITEMS = "There is something inside: ";
 	const string CREATURE_ALIVE_ITEMS = "It holds, that you can see: ";
-	const string CREATURE_DEATH_ITEMS = "It has: ";
+	const string CREATURE_LIST_ITEMS = "It has: ";
 	const string TAKE_ITEM = "You take ";
 	const string TAKE_ITEM_TO = " and put in into your inventory.";
 	const string FROM = " from ";
@@ -74,10 +76,23 @@ namespace LIST_INTROS
 
 namespace PLAYER_CONSTANTS
 {
-	const string LARVA_DESC = "You are a larva of an alien species. Your length is 30 centimeters, your skin is grayish and soft. Your only instict is to survive by parasitizing other species.";
-	const string ARACHNID_DESC = "You evolved into your species arachnid form. Your height is 60 centimeters, but your bones are strong, you are fast and have a set of mortal claws.";
-	const string BIPED_DESC = "You evolved into your species biped form. You no longer have the ability to parasitize other species, but have reached a state of evolution beyond humanity.";
+	const string PLAYER = "Player";
+	const string LARVA_DESC = "You are a larva of an alien species. Your length is 20 centimeters, your skin is grayish and soft. Your only instict is to survive by parasitizing other species.";
+	const string ARACHNID_DESC = "You are an arachnid, an evolved stage of your species. Your height is 30 centimeters, but your bones are strong, you are fast and have a set of mortal claws.";
+	const string BIPED_DESC = "You are an evolved stage of your species. Yours is a biped form, with a grayish skin coated in a strong bone-like shell and taller than the average human. You no longer have the ability to parasitize other species, but have reached a state of evolution beyond humanity.";
 	const string LOOK_UNKNOWN = "You are unable to understand what are you looking at.";
+}
+
+namespace STATS_VALUE
+{
+	const int LARVA_TO_ARACHNID = 20;
+	const int ARACHNID_TO_BIPED = 25;
+	const int LARVA_HP = 30;
+	const int LARVA_DAMAGE = 10;
+	const int ARACHNID_HP = 100;
+	const int ARACHNID_DAMAGE = 50;
+	const int BIPED_HP = 150;
+	const int BIPED_DAMAGE = 30;
 }
 
 #endif // !CONSTANTS_H

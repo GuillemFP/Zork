@@ -44,7 +44,7 @@ bool Item::LookAt(Entity* origin,const std::string& thing) const
 	}
 	else
 	{
-		Entity* entity_found = FindByStringType(thing, ITEM);
+		Entity* entity_found = FindEntityByStringType(thing, ITEM);
 		if (entity_found != nullptr)
 		{
 			entity_found->Look(origin);
@@ -65,7 +65,7 @@ bool Item::Take(Entity* origin, const std::string& thing)
 	}
 	else
 	{
-		Entity* entity_found = FindByStringType(thing, ITEM);
+		Entity* entity_found = FindEntityByStringType(thing, ITEM);
 		if (entity_found != nullptr)
 		{
 			std::cout << LIST_INTROS::TAKE_ITEM << entity_found->name << LIST_INTROS::FROM << entity_found->parent->name << LIST_INTROS::TAKE_ITEM_TO << "\n";

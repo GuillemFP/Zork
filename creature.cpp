@@ -3,14 +3,12 @@
 #include <iostream>
 #include "item.h"
 
-Creature::Creature(const std::string& name, const std::string& description, Entity* parent, int hp, bool smart) :
-	Entity(name, description, parent), hit_points(hp), smart(smart)
+Creature::Creature(const std::string& name, const std::string& description, Entity* parent, bool smart, int hp, int evo_points, int damage) :
+	Entity(name, description, parent), smart(smart), max_hit_points(hp), evolution_points(evo_points), damage(damage)
 {
 	type = CREATURE;
-	if (hp > 0)
-		alive = true;
-	else
-		alive = false;
+	hit_points = max_hit_points;
+	alive = true;
 }
 
 Creature::~Creature()
@@ -19,27 +17,41 @@ Creature::~Creature()
 
 void Creature::Look(Entity* origin) const
 {
-	Creature* creature = (Creature*)origin;
+	Creature* creature_origin = (Creature*)origin;
 
 	std::cout << name << ": " << description;
 
-	if (alive)
+	if (this != creature_origin)
 	{
-		std::cout << "\n";
-		PrintItems(LIST_INTROS::CREATURE_ALIVE_ITEMS, true);
+		if (alive)
+		{
+			if (IsInjured())
+				std::cout << " It's injured.";
+			std::cout << "\n";
+			PrintItems(LIST_INTROS::CREATURE_ALIVE_ITEMS, true);
+		}
+		else
+		{
+			std::cout << " It's dead.\n";
+			PrintItems(LIST_INTROS::CREATURE_LIST_ITEMS, false);
+		}
 	}
 	else
 	{
-		std::cout << " It's dead.\n";
-		PrintItems(LIST_INTROS::CREATURE_DEATH_ITEMS, false);
+		std::cout << " It is your current host.";
+		if (IsInjured())
+			std::cout << " It's injured.";
+		std::cout << "\n";
+		PrintItems(LIST_INTROS::CREATURE_LIST_ITEMS, false);
 	}
+	
 }
 
 bool Creature::LookAt(Entity* origin,const std::string& thing) const
 {
 	bool thing_found = false;
 	
-	Entity* element = FindByStringExclude(thing, PLAYER);
+	Entity* element = FindEntityByStringExclude(thing, PLAYER);
 	if (element != nullptr)
 	{
 		Item* item = (Item*)element;
@@ -122,6 +134,54 @@ bool Creature::Inventory() const
 	return PrintItems(LIST_INTROS::INVENTORY_HOST, false);
 }
 
+void Creature::Damage(int damage_taken)
+{
+	hit_points -= damage_taken;
+	if (IsHost())
+		std::cout << name << " takes damage.";
+	else
+	{
+		if (parent->FindByString(PLAYER_CONSTANTS::PLAYER))
+			std::cout << name << " takes damage.";		
+	}
+	
+	if (hit_points <= 0)
+	{
+		std::cout << " ";
+		Kill();
+	}
+	else
+		std::cout << "\n";
+}
+
+void Creature::Heal(int damage_healed)
+{
+	hit_points += damage_healed;
+	if (hit_points > max_hit_points)
+		hit_points = max_hit_points;
+}
+
+void Creature::Kill()
+{
+	alive = false;
+	
+	if (IsHost())
+	{
+		Entity* player = FindParasite();
+		std::cout << name << " drops dead on the ground. ";
+		player->ChangeParent(parent);
+		std::cout << "You emerge from the corpse of " << name << " into " << parent->name << ".\n";
+	}
+	else
+	{
+		if (parent->FindByString(PLAYER_CONSTANTS::PLAYER))
+			std::cout << name << " drops dead on the ground.\n";
+	}
+
+	if (hit_points > 0)
+		hit_points = 0;
+}
+
 bool Creature::PrintItems(const std::string& intro, bool only_seen) const
 {
 	bool item_found = false;
@@ -174,6 +234,25 @@ bool Creature::PrintItems(const std::string& intro, bool only_seen) const
 	}
 
 	return item_found;
+}
+
+bool Creature::IsHost() const
+{
+	Entity* player = FindEntityByStringType(PLAYER_CONSTANTS::PLAYER, PLAYER);
+	if (player != nullptr)
+		return true;
+	else
+		return false;
+}
+
+bool Creature::IsInjured() const
+{
+	return (float)hit_points / max_hit_points < 0.5;
+}
+
+Entity* Creature::FindParasite() const
+{
+	return FindEntityByStringType(PLAYER_CONSTANTS::PLAYER, PLAYER);
 }
 
 Room* Creature::GetRoom() const

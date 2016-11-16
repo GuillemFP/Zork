@@ -3,11 +3,13 @@
 #include "constants.h"
 #include <iostream>
 
-Player::Player(const std::string& name, const std::string& description, Entity* parent, int hp, bool smart) : 
-	Creature(name, description, parent, hp, smart)
+Player::Player(const std::string& name, const std::string& description, Entity* parent, bool smart, int hp, int damage) :
+	Creature(name, description, parent, smart, hp, 0, damage)
 {
 	type = PLAYER;
 	evolution_status = LARVA;
+	can_infect = true;
+	can_take = false;
 }
 
 Player::~Player()
@@ -16,7 +18,10 @@ Player::~Player()
 
 void Player::Look(Entity* origin) const
 {
-	std::cout << description + "\n";
+	std::cout << description;
+	if (IsInjured())
+		std::cout << " You are injured.";
+	std::cout << "\n";
 
 	if (IsParasite())
 	{
@@ -28,7 +33,7 @@ bool Player::LookAt(Entity* origin,const std::string& thing) const
 {
 	bool thing_found = false;
 
-	Entity* item = FindByString(thing);
+	Entity* item = FindEntityByString(thing);
 	if (item != nullptr)
 	{
 		thing_found = true;
@@ -52,12 +57,142 @@ bool Player::Inventory() const
 	return PrintItems(LIST_INTROS::INVENTORY_PLAYER, false);
 }
 
+bool Player::Infect(const std::string& target)
+{
+	if (IsParasite())
+	{
+		std::cout << OUTPUTS::_ERROR << "You cannot infect from inside a living creature.\n";
+		return true;
+	}
+	else if (can_infect)
+	{
+		Room* player_room = GetRoom();
+		Entity* target_creature = player_room->FindEntityByStringType(target, CREATURE);
+		if (target_creature != nullptr)
+		{
+			Creature* creature = (Creature*)target_creature;
+			if (creature->alive)
+			{
+				ChangeParent(creature);
+				std::cout << "You infected " << creature->name << ". It now serves as your host. You can control him and feed on it. You cannot abandon this corpse until it dies.\n";
+			}
+			else
+				std::cout << "You cannot infect a dead creature.\n";
+			return true;
+		}
+		else
+			return false;
+	}
+	else
+	{
+		std::cout << OUTPUTS::_ERROR << "You no longer have the ability to infect other people.\n";
+		return true;
+	}
+	return false;
+}
+
+bool Player::Feed()
+{
+	if (IsParasite())
+	{
+		Creature* host = GetHost();
+		std::cout << "You feed on " << host->name << ". ";
+		host->Damage(damage);
+		Heal(damage);
+		evolution_points += host->evolution_points;
+		return true;
+	}
+	else
+		return false;
+}
+
+bool Player::Evolve()
+{
+	if (evolution_status == LARVA)
+	{
+		if (evolution_points >= STATS_VALUE::LARVA_TO_ARACHNID)
+		{
+			evolution_status = ARACHNID;
+			description = PLAYER_CONSTANTS::ARACHNID_DESC;
+			evolution_points -= STATS_VALUE::LARVA_TO_ARACHNID;
+			if (evolution_points < 0)
+				evolution_points = 0;
+			if (IsParasite())
+				GetHost()->Kill();
+			std::cout << "You evolved. ";
+			Look(this);
+			max_hit_points = STATS_VALUE::ARACHNID_HP;
+			Heal(STATS_VALUE::ARACHNID_HP - STATS_VALUE::LARVA_HP);
+			damage = STATS_VALUE::ARACHNID_DAMAGE;
+			return true;
+		}
+		else
+			return false;
+		
+	}
+	else if (evolution_status == ARACHNID)
+	{
+		if (evolution_points >= STATS_VALUE::ARACHNID_TO_BIPED)
+		{
+			evolution_status = BIPED;
+			description = PLAYER_CONSTANTS::BIPED_DESC;
+			evolution_points -= STATS_VALUE::ARACHNID_TO_BIPED;
+			if (evolution_points < 0)
+				evolution_points = 0;
+			if (IsParasite())
+				GetHost()->Kill();
+			std::cout << "You evolved. ";
+			Look(this);
+			max_hit_points = STATS_VALUE::BIPED_HP;
+			Heal(STATS_VALUE::BIPED_HP - STATS_VALUE::ARACHNID_HP);
+			damage = STATS_VALUE::BIPED_HP;
+			can_take = true;
+			can_infect = false;
+			smart = true;
+			return true;
+		}
+			return false;
+	}
+	else
+	{
+		std::cout << "You cannot evolve any further. You are a perfect being among your species.\n";
+		return true;
+	}
+}
+
+void Player::Damage(int damage_taken)
+{
+	hit_points -= damage_taken;
+	std::cout << "You take damage.";
+
+	if (hit_points <= 0)
+	{
+		std::cout << " ";
+		Kill();
+	}
+	std::cout << "\n";
+}
+
+void Player::Kill()
+{
+	alive = false;
+	std::cout << "You drop dead on the ground.\n";
+}
+
 Room* Player::GetRoom() const
 {
 	if (IsParasite())
 		return (Room*)parent->parent;
 	else
 		return (Room*)parent;
+}
+
+Creature* Player::GetHost() const
+{
+	if (IsParasite())
+		return (Creature*)parent;
+	else
+		return nullptr;
 }
 
 Entity* Player::GetPOV() const

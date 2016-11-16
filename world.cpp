@@ -29,7 +29,7 @@ World::World()
 	Item* report1 = new Item("Report", "An egg from Zork origin was recovered few days ago from Zork's natal planet. Further research is needed.", documents1, INFO);
 	Item* photo1 = new Item("Photo", "A photo showing a corpse of a spider-like alien.", documents1, INFO);
 	Item* scalpel = new Item("Scalpel", "A small scalpel, stained with fresh blood.", lab, WEAPON);
-	Item* lab_key = new Item("Key", "A small metalic key, probably that of a door.", lab, KEY, exit3);
+	Item* lab_key = new Item("Key", "A small metalic key, probably that of a door.", lab, KEY, true, false, exit3);
 	Item* rifle = new Item("Rifle", "A human weapon that fires solid projectiles.", lab, WEAPON,false,false,nullptr,0,false);
 
 	exit3->SetKey(lab_key);
@@ -40,16 +40,14 @@ World::World()
 	entities.push_back(scalpel);
 	entities.push_back(lab_key);
 
-	Creature* scientist = new Creature("Scientist", "A human wearing a lab coat.", lab);
+	Creature* scientist = new Creature("Scientist", "A human wearing a lab coat.", lab, true, 50, 8, 12);
 	entities.push_back(scientist);
 
-//	player = new Player("Player", PLAYER_CONSTANTS::LARVA_DESC, lab);
-	player = new Player("Player", PLAYER_CONSTANTS::LARVA_DESC, lab, 100, true);
+	player = new Player(PLAYER_CONSTANTS::PLAYER, PLAYER_CONSTANTS::LARVA_DESC, lab, false, STATS_VALUE::LARVA_HP, STATS_VALUE::LARVA_DAMAGE);
 	entities.push_back(player);
 
 	lab_key->ChangeParent(scientist);
 	rifle->ChangeParent(scientist);
-	scientist->alive = false;
 
 	LookHandler();
 	player->Look(player);
@@ -85,6 +83,32 @@ bool World::CommandHandler(std::vector<std::string>& args, std::string& output)
 			{
 				output = OUTPUTS::_ERROR + args[0] + OUTPUTS::WHAT;
 				accepted_cmd = false;
+			}
+			else if (IsEqual(args[0], COMMAND::DROP))
+			{
+				output = OUTPUTS::_ERROR + args[0] + OUTPUTS::WHAT;
+				accepted_cmd = false;
+			}
+			else if (IsEqual(args[0], COMMAND::INFECT))
+			{
+				output = OUTPUTS::_ERROR + args[0] + OUTPUTS::WHAT;
+				accepted_cmd = false;
+			}
+			else if (IsEqual(args[0], COMMAND::FEED))
+			{
+				if (!player->Feed())
+				{
+					output = OUTPUTS::_ERROR + OUTPUTS::NOT_FEED;
+					accepted_cmd = false;
+				}	
+			}
+			else if (IsEqual(args[0], COMMAND::EVOLVE))
+			{
+				if (!player->Evolve())
+				{
+					output = OUTPUTS::_ERROR + OUTPUTS::NOT_EVOLVE;
+					accepted_cmd = false;
+				}
 			}
 			else if (IsEqual(args[0], COMMAND::INVENTORY))
 			{
@@ -166,6 +190,14 @@ bool World::CommandHandler(std::vector<std::string>& args, std::string& output)
 			else if (IsEqual(args[0], COMMAND::DROP))
 			{
 				if (!DropHandler(args[1]))
+				{
+					output = OUTPUTS::_ERROR + OUTPUTS::CANNOT + args[0] + " " + args[1] + ".";
+					accepted_cmd = false;
+				}
+			}
+			else if (IsEqual(args[0], COMMAND::INFECT))
+			{
+				if (!player->Infect(args[1]))
 				{
 					output = OUTPUTS::_ERROR + OUTPUTS::CANNOT + args[0] + " " + args[1] + ".";
 					accepted_cmd = false;
@@ -309,16 +341,34 @@ bool World::LookAtInsideHandler(const std::string& item_name, const std::string&
 bool World::TakeHandler(const std::string& thing)
 {
 	Entity* pov = player->GetPOV();
-	Room* present_room = player->GetRoom();
 
-	return present_room->Take(pov, thing);
+	if (!player->IsParasite() && !player->can_take)
+	{
+		std::cout << OUTPUTS::_ERROR << "You do not posses prehensile extremities in order to pick up things.\n";
+		return true;
+	}
+	else
+	{
+		Room* present_room = player->GetRoom();
+		return present_room->Take(pov, thing);
+	}
+	return false;
 }
 
 bool World::TakeFromHandler(const std::string& item_name, const std::string& container_name)
 {
 	Entity* pov = player->GetPOV();
 
-	return pov->TakeFrom(pov, item_name, container_name);
+	if (!player->IsParasite() && !player->can_take)
+	{
+		std::cout << OUTPUTS::_ERROR << "You do not posses prehensile extremities in order to pick up things.\n";
+		return true;
+	}
+	else
+	{
+		return pov->TakeFrom(pov, item_name, container_name);
+	}
+	return false;
 }
 
 bool World::DropHandler(const std::string& thing)
@@ -331,7 +381,7 @@ bool World::DropHandler(const std::string& thing)
 bool World::DropToHandler(const std::string& item_name, const std::string& container_name)
 {
 	Entity* pov = player->GetPOV();
-	Entity* item_drop = pov->FindByStringType(item_name, ITEM);
+	Entity* item_drop = pov->FindEntityByStringType(item_name, ITEM);
 
 	if (item_drop != nullptr)
 	{

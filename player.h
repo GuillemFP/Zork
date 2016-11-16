@@ -14,18 +14,26 @@ enum Player_status
 class Player : public Creature
 {
 public:
-	Player(const std::string& name, const std::string& description, Entity* parent, int hp = 100, bool smart = false);
+	Player(const std::string& name, const std::string& description, Entity* parent, bool smart = false, int hp = 100, int damage = 10);
 	~Player();
 
 	void Look(Entity* origin) const;
 	bool LookAt(Entity* origin,const std::string& thing) const;
 	bool Take(Entity* origin, const std::string& thing);
 	bool Inventory() const;
+	bool Infect(const std::string& target);
+	bool Feed();
+	bool Evolve();
+	void Damage(int damage_taken);
+	void Kill();
 	Room* GetRoom() const;
+	Creature* GetHost() const;
 	Entity* GetPOV() const;
 	bool IsParasite() const;
 
 	Player_status evolution_status;
+	bool can_infect;
+	bool can_take;
 };
 
 

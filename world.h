@@ -25,6 +25,8 @@ public:
 	bool DropToHandler(const std::string& item_name, const std::string& container_name);
 	bool MoveHandler(const std::string& direction);
 	bool OpenHandler(const std::string& direction);
+	bool InfectHandler(const std::string& target);
+	bool FeedHandler();
 	bool InventoryHandler();
 
 	Player* player;

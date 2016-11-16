@@ -30,7 +30,7 @@ bool Room::LookAt(Entity* origin, const std::string& thing) const
 {
 	Creature* creature = (Creature*)origin;
 	
-	Entity* entity_found = FindByStringExclude(thing, EXIT);
+	Entity* entity_found = FindEntityByStringExclude(thing, EXIT);
 	if (entity_found != nullptr)
 	{
 		entity_found->Look(origin);
