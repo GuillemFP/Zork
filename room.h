@@ -14,8 +14,6 @@ public:
 
 	void Look(Entity* origin) const;
 	bool LookAt(Entity* origin, const std::string& thing) const;
-	bool LookAtInside(Entity* origin, const std::string& item_name, const std::string& container_name) const;
-	bool TakeFrom(Entity* origin, const std::string& item_name, const std::string& container_name);
 	Exit* GetExit(const std::string& thing) const;
 	void PrintSubentitiesByType(const std::string& intro, Entity_Type type_check) const;
 	void PrintCreaturesByStatus(const std::string& intro, bool alive, Entity* origin) const;

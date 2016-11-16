@@ -27,6 +27,8 @@ public:
 	virtual bool LookAtInside(Entity* origin, const std::string& item_name, const std::string& container_name) const;
 	virtual bool Take(Entity* origin, const std::string& thing);
 	virtual bool TakeFrom(Entity* origin, const std::string& item_name, const std::string& container_name);
+	virtual bool Drop(Entity* item_drop, const std::string& container_name);
+	virtual void DropTo(Entity* target);
 
 	void ChangeParent(Entity* new_parent);
 	bool FindByEntity(Entity* match_entity) const;

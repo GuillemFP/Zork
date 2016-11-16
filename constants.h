@@ -19,7 +19,7 @@ namespace COMMAND
 	const vector<string> OPEN = { "open" };
 	const vector<string> INFECT = { "infect","parasitize" };
 	const vector<string> TAKE = { "take","pick" };
-	const vector<string> DROP = { "drop","release" };
+	const vector<string> DROP = { "drop","release","put","leave" };
 	const vector<string> EVOLVE = { "evolve" };
 	const vector<string> FEED = { "feed" };
 	const vector<string> INVENTORY = { "inventory","items" };
@@ -35,7 +35,7 @@ namespace NAMES
 
 namespace CONNECTORS
 {
-	const vector<string> FROM = { "from","inside","in" };
+	const vector<string> FROM = { "from","inside","in","on" };
 	const vector<string> INTO = { "into","to","inside" };
 	const vector<string> AT = { "at" };
 	const vector<string> INSIDE = { "inside","in","on" };
@@ -68,6 +68,8 @@ namespace LIST_INTROS
 	const string TAKE_ITEM = "You take ";
 	const string TAKE_ITEM_TO = " and put in into your inventory.";
 	const string FROM = " from ";
+	const string DROP_ITEM = "You leave ";
+	const string DROP_ITEM_IN = " in ";
 }
 
 namespace PLAYER_CONSTANTS

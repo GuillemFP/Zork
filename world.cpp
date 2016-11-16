@@ -25,12 +25,12 @@ World::World()
 	entities.push_back(exit3);
 	entities.push_back(exit5);
 
-	Item* documents1 = new Item("Documents", "Analisis about Zorks, an alien species that infects other species in order to evolve to further stages.", lab, INFO);
+	Item* documents1 = new Item("Documents", "Analisis about Zorks, an alien species that infects other species in order to evolve to further stages.", lab, INFO,true,true);
 	Item* report1 = new Item("Report", "An egg from Zork origin was recovered few days ago from Zork's natal planet. Further research is needed.", documents1, INFO);
 	Item* photo1 = new Item("Photo", "A photo showing a corpse of a spider-like alien.", documents1, INFO);
 	Item* scalpel = new Item("Scalpel", "A small scalpel, stained with fresh blood.", lab, WEAPON);
 	Item* lab_key = new Item("Key", "A small metalic key, probably that of a door.", lab, KEY, exit3);
-	Item* rifle = new Item("Rifle", "A human weapon that fires solid projectiles.", lab, WEAPON, nullptr,0,false);
+	Item* rifle = new Item("Rifle", "A human weapon that fires solid projectiles.", lab, WEAPON,false,false,nullptr,0,false);
 
 	exit3->SetKey(lab_key);
 
@@ -118,7 +118,7 @@ bool World::CommandHandler(std::vector<std::string>& args, std::string& output)
 				{
 					if (!LookAtHandler(args[1]))
 					{
-						output = OUTPUTS::_ERROR + OUTPUTS::CANNOT + args[0] + " at " + args[1];
+						output = OUTPUTS::_ERROR + OUTPUTS::CANNOT + args[0] + " at " + args[1] + ".";
 						accepted_cmd = false;
 					}
 				}
@@ -129,7 +129,7 @@ bool World::CommandHandler(std::vector<std::string>& args, std::string& output)
 				{
 					if (IsEqual(args[1],COMMAND::DIRECTIONS))
 					{
-						output = OUTPUTS::_ERROR + OUTPUTS::CANNOT + args[0] + " in that direction.";
+						output = OUTPUTS::CANNOT + args[0] + " in that direction.";
 						accepted_cmd = false;
 					}
 					else
@@ -159,7 +159,15 @@ bool World::CommandHandler(std::vector<std::string>& args, std::string& output)
 			{
 				if (!TakeHandler(args[1]))
 				{
-					output = OUTPUTS::_ERROR + args[0] + OUTPUTS::WHAT;
+					output = OUTPUTS::_ERROR + OUTPUTS::CANNOT + args[0] + " " + args[1] + ".";
+					accepted_cmd = false;
+				}
+			}
+			else if (IsEqual(args[0], COMMAND::DROP))
+			{
+				if (!DropHandler(args[1]))
+				{
+					output = OUTPUTS::_ERROR + OUTPUTS::CANNOT + args[0] + " " + args[1] + ".";
 					accepted_cmd = false;
 				}
 			}
@@ -217,7 +225,15 @@ bool World::CommandHandler(std::vector<std::string>& args, std::string& output)
 			{
 				if (!TakeFromHandler(args[1], args[3]))
 				{
-					output = OUTPUTS::_ERROR + args[0] + OUTPUTS::WHAT + " " + args[2] + OUTPUTS::WHAT;
+					output = OUTPUTS::_ERROR + args[0] + OUTPUTS::WHAT + " " + args[2] + OUTPUTS::WHERE;
+					accepted_cmd = false;
+				}
+			}
+			else if (IsEqual(args[0], COMMAND::DROP) && IsEqual(args[2], CONNECTORS::INSIDE))
+			{
+				if (!DropToHandler(args[1],args[3]))
+				{
+					output = OUTPUTS::_ERROR + args[0] + OUTPUTS::WHAT + " " + args[2] + OUTPUTS::WHERE;
 					accepted_cmd = false;
 				}
 			}
@@ -303,6 +319,27 @@ bool World::TakeFromHandler(const std::string& item_name, const std::string& con
 	Entity* pov = player->GetPOV();
 
 	return pov->TakeFrom(pov, item_name, container_name);
+}
+
+bool World::DropHandler(const std::string& thing)
+{
+	Room* target_room = player->GetRoom();
+
+	return DropToHandler(thing, target_room->name);
+}
+
+bool World::DropToHandler(const std::string& item_name, const std::string& container_name)
+{
+	Entity* pov = player->GetPOV();
+	Entity* item_drop = pov->FindByStringType(item_name, ITEM);
+
+	if (item_drop != nullptr)
+	{
+		Item* item = (Item*)item_drop;
+		return pov->Drop(item_drop, container_name);
+	}
+
+	return false;
 }
 
 bool World::MoveHandler(const std::string& direction)

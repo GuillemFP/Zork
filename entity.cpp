@@ -38,15 +38,21 @@ bool Entity::LookAt(Entity* origin, const std::string& thing) const
 
 bool Entity::LookAtInside(Entity* origin, const std::string& item_name, const std::string& container_name) const
 {
-	bool all_found = false;
-
-	Entity* container = FindByString(container_name);
+	Entity* container = FindByStringExclude(container_name,EXIT);
 	if (container == nullptr)
-		all_found = parent->LookAtInside(origin, item_name, container_name);
+	{
+		if (parent != nullptr)
+			return parent->LookAtInside(origin, item_name, container_name);
+		else
+		{
+			if (IsEqual(container_name, name))
+				return LookAt(origin, item_name);
+		}
+	}
 	else
-		all_found = container->LookAt(origin, item_name);
+		return container->LookAt(origin, item_name);
 
-	return all_found;
+	return false;
 }
 
 bool Entity::Take(Entity* origin, const std::string& thing)
@@ -64,15 +70,61 @@ bool Entity::Take(Entity* origin, const std::string& thing)
 
 bool Entity::TakeFrom(Entity* origin, const std::string& item_name, const std::string& container_name)
 {
-	bool all_found = false;
-
 	Entity* container = FindByStringExclude(container_name,PLAYER);
 	if (container == nullptr)
-		all_found = parent->TakeFrom(origin, item_name, container_name);
+	{
+		if (parent != nullptr)
+			return parent->TakeFrom(origin, item_name, container_name);
+		else
+		{
+			if (IsEqual(container_name, name))
+				return Take(origin, item_name);
+		}
+	}	
 	else
-		all_found = container->Take(origin, item_name);
+		return container->Take(origin, item_name);
 
-	return all_found;
+	return false;
+}
+
+bool Entity::Drop(Entity* item_drop, const std::string& container_name)
+{
+	Entity* container = FindByStringType(container_name, ITEM);
+	if (container == nullptr)
+	{
+		container = FindByStringType(container_name, CREATURE);
+		if (container == nullptr)
+		{
+			if (parent != nullptr)
+				return parent->Drop(item_drop, container_name);
+			else
+			{
+				if (IsEqual(container_name, name) && type == ROOM)
+				{
+					item_drop->DropTo(this);
+					return true;
+				}
+			}
+		}
+		else
+		{
+			item_drop->DropTo(container);
+			return true;
+		}
+	}
+	else
+	{
+		item_drop->DropTo(container);
+		return true;
+	}
+
+	return false;
+}
+
+void Entity::DropTo(Entity* target)
+{
+	std::cout << LIST_INTROS::DROP_ITEM << name << LIST_INTROS::DROP_ITEM_IN << target->name << ".\n";
+	ChangeParent(target);
 }
 
 void Entity::ChangeParent(Entity* new_parent)

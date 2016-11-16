@@ -53,32 +53,6 @@ bool Room::LookAt(Entity* origin, const std::string& thing) const
 	return false;
 }
 
-bool Room::LookAtInside(Entity* origin, const std::string& item_name, const std::string& container_name) const
-{
-	bool all_found = false;
-
-	Entity* container = FindByStringExclude(container_name, EXIT);
-	if (container != nullptr)
-		all_found = container->LookAt(origin, item_name);
-	else if (IsEqual(container_name, name))
-		all_found = LookAt(origin, item_name);
-
-	return all_found;
-}
-
-bool Room::TakeFrom(Entity* origin, const std::string& item_name, const std::string& container_name)
-{
-	bool all_found = false;
-
-	Entity* container = FindByStringExclude(container_name, PLAYER);
-	if (container != nullptr)
-		all_found = container->Take(origin, item_name);
-	else if (IsEqual(container_name, name))
-		all_found = Take(origin, item_name);
-
-	return all_found;
-}
-
 Exit* Room::GetExit(const std::string& thing) const
 {
 	for (std::list<Entity*>::const_iterator it = contains.begin(); it != contains.end(); ++it)

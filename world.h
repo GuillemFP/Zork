@@ -19,10 +19,12 @@ public:
 	void LookHandler();
 	bool LookAtHandler(const std::string& thing);
 	bool LookAtInsideHandler(const std::string& item_name, const std::string& container_name);
-	bool MoveHandler(const std::string& direction);
-	bool OpenHandler(const std::string& direction);
 	bool TakeHandler(const std::string& thing);
 	bool TakeFromHandler(const std::string& item_name, const std::string& container_name);
+	bool DropHandler(const std::string& thing);
+	bool DropToHandler(const std::string& item_name, const std::string& container_name);
+	bool MoveHandler(const std::string& direction);
+	bool OpenHandler(const std::string& direction);
 	bool InventoryHandler();
 
 	Player* player;
